@@ -10,6 +10,7 @@ import RegisterScreen from "./screens/RegisterScreen/RegisterScreen";
 import CreateNote from "./screens/SingleNote/CreateNote";
 import { useState } from "react";
 import ProfileScreen from "./screens/ProfileScreen/ProfileScreen";
+import ForgotPassword from "./screens/ForgotPassword/ForgotPassword";
 
 function App() {
   const [search, setSearch] = useState("");
@@ -21,6 +22,7 @@ function App() {
         <Route path="/" component={LandingPage} exact />
         <Route path="/login" component={LoginScreen} />
         <Route path="/register" component={RegisterScreen} />
+        <Route path="/forgot-password" component={ForgotPassword} />
         <Route
           path="/mynotes"
           component={({ history }) => (

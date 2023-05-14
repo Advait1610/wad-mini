@@ -62,6 +62,9 @@ function LoginScreen({ history }) {
           <Col>
             New Customer ? <Link to="/register">Register Here</Link>
           </Col>
+          <Col className="frg-pass">
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </Col>
         </Row>
       </div>
     </MainScreen>

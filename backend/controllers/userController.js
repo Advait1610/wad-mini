@@ -1,6 +1,8 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
+import nodemailer from "nodemailer";
+import bcrypt from "bcryptjs";
 
 //@description     Auth the user
 //@route           POST /api/users/login
@@ -90,4 +92,67 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-export { authUser, updateUserProfile, registerUser };
+const forgotPassword = asyncHandler(async (req, res) => {
+  try {
+    console.log("in forgot pwd");
+    let user1 = await User.findOne({ email: req.body.email });
+    console.log("USER: ", user1);
+    if (user1) {
+      console.log("user.email = ", user1.email === null);
+      user1 ? console.log(user1) : null;
+    }
+    if (!user1) {
+      console.log("USER NOT FOUND IN DB");
+
+      res.json({ msg: "USER NOT FOUND", status: 0 });
+    }
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "naikadvait1610@gmail.com",
+        pass: "kkncvfrgwdsalniv",
+      },
+    });
+
+    let randomPass = "";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+
+    for (let counter = 0; counter < 10; counter++)
+      randomPass += characters.charAt(
+        Math.floor(Math.random() * charactersLength)
+      );
+
+    const salt = await bcrypt.genSalt(10);
+    const encryptedPass = await bcrypt.hash(randomPass, salt);
+
+    const mailOptions = {
+      from: "naikadvait1610@gmail.com",
+      to: req.body.email,
+      subject: "Your password has beeen reset",
+      text: `Your new password is ${randomPass}`,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        res.json({ error, status: 0 });
+      } else {
+        res.json({ msg: "Email sent: " + info.response, status: 1});
+      }
+    });
+
+    const user = await User.findOneAndUpdate(
+      { email: req.body.email },
+      { password: encryptedPass }
+    );
+    // } else {
+    //   res.status(401);
+    //   throw new Error("Invalid Email");
+    // }
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+export { authUser, updateUserProfile, registerUser, forgotPassword };
